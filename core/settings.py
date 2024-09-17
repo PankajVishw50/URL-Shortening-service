@@ -46,6 +46,7 @@ INSTALLED_APPS = [
 
     'account.apps.AccountConfig', 
     'util.apps.UtilConfig',
+    'link.apps.LinkConfig',
 ]
 
 MIDDLEWARE = [
