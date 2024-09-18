@@ -14,3 +14,11 @@ class UrlSerializer(serializers.ModelSerializer):
         read_only_fields = [
             'visits'
         ]
+
+class VisitSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Visit
+        fields = [
+            'visit_datetime', 'ip_address',
+            'user_agent', 'referrer', 'url',
+        ]
