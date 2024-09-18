@@ -58,6 +58,49 @@ class UrlsView(APIView):
         })
     
 
+class UrlView(APIView):
+
+    def get(self, request, pk):
+
+        try:
+            url = Url.objects.get(pk=pk)
+
+        except ObjectDoesNotExist:
+            return response_error(
+                status.HTTP_404_NOT_FOUND,
+                'No url with provided id',
+            )
+        
+        url_serialized = UrlSerializer(url)
+        return Response({
+            'data': url_serialized.data,
+        })
+    
+    def patch(self, request, pk):
+
+        try:
+            url = Url.objects.get(pk=pk)
+        except ObjectDoesNotExist:
+            return response_error(
+                status.HTTP_404_NOT_FOUND,
+                'No url with provided id',
+            )
+        
+        url_serialized = UrlSerializer(url, data=request.data, partial=True)
+        
+        if not url_serialized.is_valid():
+            return response_error(
+                status.HTTP_400_BAD_REQUEST,
+                'Invalid data',
+            )
+        
+        url_serialized.save()
+        return Response({
+            'updated': True,
+            'data': url_serialized.data,
+        })
+
+
 class RedirectView(APIView):
 
     def get(self, request, unique_identifier):

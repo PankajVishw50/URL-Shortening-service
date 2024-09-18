@@ -6,7 +6,7 @@ class UrlSerializer(serializers.ModelSerializer):
     class Meta:
         model = Url 
         fields = [
-            'url', 'unique_identifier',
+            'pk', 'url', 'unique_identifier',
             'visits', 'allowed_visits', 
             'expiration_datetime', 'user',
         ]
