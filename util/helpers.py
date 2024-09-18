@@ -30,3 +30,14 @@ def get_request(*args):
 
     return None
 
+
+
+def page_range(page=1, size=10):
+
+    page = int(page)
+    size = int(size)
+
+    return (
+        (page-1) * size,
+        page * size,
+    )
