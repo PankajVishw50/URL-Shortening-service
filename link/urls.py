@@ -3,7 +3,7 @@ from django.urls import path
 from .views import (
     UrlsView, RedirectView,
     UrlView, DisableUrlView, EnableUrlView,
-    VisitsView, VisitView
+    VisitsView, VisitView, StatsView
 )
 
 urlpatterns = [
@@ -14,5 +14,6 @@ urlpatterns = [
     path('api/urls/<int:pk>/enable', EnableUrlView.as_view(), name='enable_url'),
     path('api/urls/<int:pk>/visits', VisitsView.as_view(), name='visits'), 
     path('api/urls/<int:pk>/visits/<int:visit_pk>', VisitView.as_view(), name='visit'),
+    path('api/urls/stats', StatsView.as_view(), name='stats'),
 
 ]
