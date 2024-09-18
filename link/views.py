@@ -161,6 +161,12 @@ class RedirectView(APIView):
                 'Link expired'
             )
         
+        if url.disabled:
+            return response_error(
+                status.HTTP_400_BAD_REQUEST,
+                'Link is disabled',
+            )
+        
         # check if visit are available
         if isinstance(url.allowed_visits, int):
             if url.allowed_visits < 1:
