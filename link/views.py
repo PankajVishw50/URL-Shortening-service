@@ -172,6 +172,71 @@ class EnableUrlView(APIView):
             'data': url_serialized.data,
         })
 
+class VisitsView(APIView):
+    def get(self, request, pk):
+        try:
+            
+            url = Url.objects.get(pk=pk, user=request.user)
+            req_page = int(self.request.query_params['page']) if self.request.query_params.get('page') else None
+            req_size = int(self.request.query_params['size']) if self.request.query_params.get('size') else None 
+
+            if (req_page and req_page <= 0) or (req_size and (req_size <= 0 or req_size > 50)):
+                raise Exception('invalid data')
+
+        except ObjectDoesNotExist:
+            return response_error(
+                status.HTTP_404_NOT_FOUND,
+                'No url with provided id',
+            )
+        
+        except:
+            return response_error(
+                status.HTTP_400_BAD_REQUEST,
+                'Invalid data'
+            )
+
+
+        page = req_page or 1
+        size = req_size or 10
+
+        [start, end] = page_range(page, size)
+        all_visits = Visit.objects.filter(url=url).order_by('-id')
+        visits = all_visits[start:end]
+
+        visits_serialized = VisitSerializer(instance=visits, many=True)
+
+        return Response(
+            {
+                'next': all_visits.count() > visits.count(),
+                'total': all_visits.count(),
+                'page_info': {
+                    'page': page,
+                    'size': size,
+                    'fetched_rows': visits.count(),
+                },
+                'data': visits_serialized.data,
+            }
+        )
+    
+class VisitView(APIView):
+    def get(self, request, pk, visit_pk):        
+        try:
+            visit = Visit.objects.get(pk=visit_pk)
+
+            if visit.url.pk != pk or request.user != visit.url.user:
+                raise Exception()
+
+        except ObjectDoesNotExist:
+            return response_error(
+                status.HTTP_404_NOT_FOUND,
+                'No url with provided id',
+            )
+        
+        visit_serialized = VisitSerializer(visit)
+        return Response({
+            'data': visit_serialized.data,
+        })
+
 
 class RedirectView(APIView):
 
