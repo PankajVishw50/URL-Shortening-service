@@ -30,6 +30,10 @@ class Url(models.Model):
         blank=True,
     )
 
+    disabled = models.BooleanField(
+        default=False
+    )
+
     user = models.ForeignKey(
         to=User,
         on_delete=models.CASCADE,

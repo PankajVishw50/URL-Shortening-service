@@ -99,6 +99,44 @@ class UrlView(APIView):
             'updated': True,
             'data': url_serialized.data,
         })
+    
+class DisableUrlView(APIView):
+
+    def post(self, request, pk):
+        try:
+            url = Url.objects.get(pk=pk)
+        except ObjectDoesNotExist:
+            return response_error(
+                status.HTTP_404_NOT_FOUND,
+                'No url with provided id',
+            )
+        
+        url.disabled = True 
+        url.save()
+        url_serialized = UrlSerializer(url)
+        return Response({
+            'disabled': url.disabled,
+            'data': url_serialized.data,
+        })
+
+class EnableUrlView(APIView):
+
+    def post(self, request, pk):
+        try:
+            url = Url.objects.get(pk=pk)
+        except ObjectDoesNotExist:
+            return response_error(
+                status.HTTP_404_NOT_FOUND,
+                'No url with provided id',
+            )
+        
+        url.disabled = False 
+        url.save()
+        url_serialized = UrlSerializer(url)
+        return Response({
+            'enabled': not url.disabled,
+            'data': url_serialized.data,
+        })
 
 
 class RedirectView(APIView):

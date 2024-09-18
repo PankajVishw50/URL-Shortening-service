@@ -8,11 +8,11 @@ class UrlSerializer(serializers.ModelSerializer):
         fields = [
             'pk', 'url', 'unique_identifier',
             'visits', 'allowed_visits', 
-            'expiration_datetime', 'user',
+            'expiration_datetime', 'disabled', 'user',
         ]
 
         read_only_fields = [
-            'visits'
+            'visits', 'disabled',
         ]
 
 class VisitSerializer(serializers.ModelSerializer):
