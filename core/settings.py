@@ -139,3 +139,5 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Changed django's default model to our modified model
 AUTH_USER_MODEL = 'account.CustomUser'
+
+URL_UNIQUE_IDENTIFIERS_LENGTH = 16
