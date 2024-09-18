@@ -12,13 +12,47 @@ import datetime, pytz
 from .serializers import UrlSerializer, VisitSerializer
 from .models import Url, Visit
 from util.response import response_error
-
+from util.helpers import page_range
 
 # Create your views here.
 class UrlsView(APIView):
 
     def get(self, request):
-        return Response('not implemented')
+
+        try:
+            req_page = int(self.request.query_params['page']) if self.request.query_params.get('page') else None
+            req_size = int(self.request.query_params['size']) if self.request.query_params.get('size') else None 
+
+            if (req_page and req_page <= 0) or (req_size and (req_size <= 0 or req_size > 50)):
+                raise Exception('invalid data')
+        except:
+            return response_error(
+                status.HTTP_400_BAD_REQUEST,
+                'Invalid data'
+            )
+
+
+        page = req_page or 1
+        size = req_size or 10
+
+        [start, end] = page_range(page, size)
+        all_urls = Url.objects.filter(user=request.user).order_by('-id')
+        urls = all_urls[start:end]
+
+        urls_serialized = UrlSerializer(instance=urls, many=True)
+
+        return Response(
+            {
+                'next': all_urls.count() > urls.count(),
+                'total': all_urls.count(),
+                'page_info': {
+                    'page': page,
+                    'size': size,
+                    'fetched_rows': urls.count(),
+                },
+                'data': urls_serialized.data,
+            }
+        )
     
     
     def post(self, request):
