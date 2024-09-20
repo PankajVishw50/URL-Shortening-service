@@ -13,10 +13,12 @@ from .serializers import UrlSerializer, VisitSerializer
 from .models import Url, Visit
 from util.response import response_error
 from util.helpers import page_range
+from util.decorators.https import auth_required
 
 # Create your views here.
 class UrlsView(APIView):
 
+    @auth_required
     def get(self, request):
 
         try:
@@ -54,7 +56,7 @@ class UrlsView(APIView):
             }
         )
     
-    
+    @auth_required
     def post(self, request):
 
         # Get random string which is not in database
@@ -94,10 +96,15 @@ class UrlsView(APIView):
 
 class UrlView(APIView):
 
+    @auth_required
     def get(self, request, pk):
 
         try:
-            url = Url.objects.get(pk=pk)
+            url = Url.objects.get(pk=pk, user=request.user)
+
+            if url.user != request.user:
+                raise ObjectDoesNotExist()
+
 
         except ObjectDoesNotExist:
             return response_error(
@@ -110,15 +117,18 @@ class UrlView(APIView):
             'data': url_serialized.data,
         })
     
+    @auth_required
     def patch(self, request, pk):
 
         try:
-            url = Url.objects.get(pk=pk)
+            url = Url.objects.get(pk=pk, user=request.user)
+
         except ObjectDoesNotExist:
             return response_error(
                 status.HTTP_404_NOT_FOUND,
                 'No url with provided id',
             )
+    
         
         url_serialized = UrlSerializer(url, data=request.data, partial=True)
         
@@ -136,9 +146,11 @@ class UrlView(APIView):
     
 class DisableUrlView(APIView):
 
+    @auth_required
     def post(self, request, pk):
         try:
-            url = Url.objects.get(pk=pk)
+            url = Url.objects.get(pk=pk, user=request.user)
+
         except ObjectDoesNotExist:
             return response_error(
                 status.HTTP_404_NOT_FOUND,
@@ -155,9 +167,10 @@ class DisableUrlView(APIView):
 
 class EnableUrlView(APIView):
 
+    @auth_required
     def post(self, request, pk):
         try:
-            url = Url.objects.get(pk=pk)
+            url = Url.objects.get(pk=pk, user=request.user)
         except ObjectDoesNotExist:
             return response_error(
                 status.HTTP_404_NOT_FOUND,
@@ -173,6 +186,8 @@ class EnableUrlView(APIView):
         })
 
 class VisitsView(APIView):
+
+    @auth_required
     def get(self, request, pk):
         try:
             
@@ -219,12 +234,11 @@ class VisitsView(APIView):
         )
     
 class VisitView(APIView):
+
+    @auth_required
     def get(self, request, pk, visit_pk):        
         try:
-            visit = Visit.objects.get(pk=visit_pk)
-
-            if visit.url.pk != pk or request.user != visit.url.user:
-                raise Exception()
+            visit = Visit.objects.get(pk=visit_pk, url=pk, url__user=request.user)
 
         except ObjectDoesNotExist:
             return response_error(
@@ -239,6 +253,8 @@ class VisitView(APIView):
 
 
 class StatsView(APIView):
+
+    @auth_required
     def get(self, request):
 
         try:
